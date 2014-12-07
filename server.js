@@ -23,13 +23,21 @@ var networkRenderer = {
     var index = this.clients.indexOf(client);
     this.clients.splice(index, 1);
   },
-  render: function(seconds, state, playerId) {
+  updateClient: function(client, data) {
+    client.isPending = false;
+    client.lastAnswered = present();
+    var payload = JSON.parse(data);
+    if (payload.type === 'state') {
+
+    }
+  },
+  render: function(seconds, state) {
     var now = present();
     var payload = {
       type: 'state',
       state: state
     };
-    var string = JSON.stringify(payload);
+    var message = JSON.stringify(payload);
 
     // First, drop any clients we haven't heard from in a while
     this.clients = this.clients.filter(dropIfGone);
@@ -48,13 +56,13 @@ var networkRenderer = {
 
     function sendState(client) {
       if (client.isPending) return;
-      client.ws.send(string);
+      client.ws.send(message);
       client.isPending = true;
     }
   }
 };
 
-var game = new Game(networkRenderer, undefined);
+var game = new Game(undefined, undefined);
 var app = express();
 var server = http.createServer(app);
 var wss = new WSServer({ server: server });
@@ -65,11 +73,12 @@ app
   .get('/', sendIndex);
 
 wss.on('connection', onSocketConnection);
+game.on('render', networkRenderer.render.bind(networkRenderer));
 
 game.start();
-
 server.listen(PORT);
 console.log('Listening on', PORT);
+
 
 
 function sendIndex(req, res, next) {
@@ -79,6 +88,11 @@ function sendIndex(req, res, next) {
 function onSocketConnection(ws) {
   var client = networkRenderer.createClient(ws);
   console.log('client connected');
+
+  ws.on('message', function(data, flags) {
+    console.log('onmessage');
+    networkRenderer.updateClient(client, data);
+  });
 
   ws.on('close', function() {
     networkRenderer.destroyClient(client);

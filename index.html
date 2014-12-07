@@ -55,6 +55,14 @@
 
       game.start();
 
+      network.on('state', function(state) {
+        game.replaceState(state);
+      });
+
+      game.on('render', function(seconds, state) {
+        network.sendState(state);
+      });
+
     </script>
   </body>
 </html>

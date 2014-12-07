@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "browserify": "^6.3.3",
+    "eventemitter2": "^0.4.14",
     "express": "^4.10.4",
     "performance-now": "^0.2.0",
     "present": "0.0.6",
