@@ -39,7 +39,9 @@ var networkRenderer = {
         if (client.id && !game.entities.get(client.id)) client.id = undefined;
         if (!client.id) {
           // give the client a player!
-          client.id = game.createPlayer();
+          var newPlayer = game.createPlayer(client.team);
+          client.id = newPlayer.id;
+          client.team = newPlayer.team;
 
           // Don't check readyState because this has to go through
           transport.send(client.ws, transport.pack({
