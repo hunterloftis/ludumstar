@@ -50,7 +50,7 @@
       var canvas = document.getElementById('viewport');
       var renderer = new Star.Renderer(canvas);
       var keyboard = new Star.Keyboard();
-      var network = new Star.Network();
+      var network = new Star.Client();
       var game = new Star.Game(renderer, keyboard);
 
       game.start();

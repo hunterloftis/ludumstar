@@ -2,8 +2,10 @@ var path = require('path');
 var express = require('express');
 var http = require('http');
 var WSServer = require('ws').Server;
-var Game = require('./lib/game');
 var present = require('present');
+
+var Game = require('./lib/game');
+var transport = require('./lib/network/transport');
 
 var PORT = process.env.PORT || 5000;
 var DROP_DELAY = 5000;
@@ -27,7 +29,7 @@ var networkRenderer = {
   updateClient: function(client, data) {
     client.isPending = false;
     client.lastAnswered = present();
-    var payload = JSON.parse(data);
+    var payload = transport.unpack(data);
     if (payload.type === 'playerState' && payload.state) {
       game.entities.set(client.id, payload.state);
     }
@@ -37,11 +39,10 @@ var networkRenderer = {
   },
   render: function(seconds, state) {
     var now = present();
-    var payload = {
+    var message = transport.pack({
       type: 'state',
       state: state
-    };
-    var message = JSON.stringify(payload);
+    });
 
     // First, drop any clients we haven't heard from in a while
     this.clients = this.clients.filter(dropIfGone);
@@ -60,8 +61,7 @@ var networkRenderer = {
 
     function sendState(client) {
       if (client.isPending) return;
-      if (client.ws.readyState !== 1) return;
-      client.ws.send(message);
+      transport.send(client.ws, message);
       client.isPending = true;
     }
   }
@@ -96,12 +96,12 @@ function onSocketConnection(ws) {
   var client = networkRenderer.createClient(ws);
   var id = game.createPlayer();
   networkRenderer.attachClientId(client, id);
-  var payload = {
+
+  // Don't check readyState because this has to go through
+  transport.forceSend(ws, transport.pack({
     type: 'id',
     id: id
-  };
-  var message = JSON.stringify(payload);
-  ws.send(message);
+  }));
 
   ws.on('message', function(data, flags) {
     networkRenderer.updateClient(client, data);
