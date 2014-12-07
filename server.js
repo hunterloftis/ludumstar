@@ -26,16 +26,29 @@ var networkRenderer = {
     var index = this.clients.indexOf(client);
     this.clients.splice(index, 1);
   },
-  updateClient: function(client, data) {
+  updateFromClient: function(client, data) {
     client.isPending = false;
     client.lastAnswered = present();
     var payload = transport.unpack(data);
-    if (payload.type === 'playerState' && payload.state) {
-      game.entities.set(client.id, payload.state);
+    if (payload.type === 'playerState') {
+      if (payload.state) {
+        game.entities.set(client.id, payload.state);
+      }
+      else {
+        // Has the client's player been destroyed?
+        if (client.id && !game.entities.get(client.id)) client.id = undefined;
+        if (!client.id) {
+          // give the client a player!
+          client.id = game.createPlayer();
+
+          // Don't check readyState because this has to go through
+          transport.send(client.ws, transport.pack({
+            type: 'id',
+            id: client.id
+          }));
+        }
+      }
     }
-  },
-  attachClientId: function(client, id) {
-    client.id = id;
   },
   render: function(seconds, state) {
     var now = present();
@@ -94,17 +107,9 @@ function onSocketConnection(ws) {
   console.log('client connected');
 
   var client = networkRenderer.createClient(ws);
-  var id = game.createPlayer();
-  networkRenderer.attachClientId(client, id);
-
-  // Don't check readyState because this has to go through
-  transport.forceSend(ws, transport.pack({
-    type: 'id',
-    id: id
-  }));
 
   ws.on('message', function(data, flags) {
-    networkRenderer.updateClient(client, data);
+    networkRenderer.updateFromClient(client, data);
   });
 
   ws.on('close', function() {
