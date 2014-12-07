@@ -60,6 +60,7 @@ var networkRenderer = {
 
     function sendState(client) {
       if (client.isPending) return;
+      if (client.ws.readyState !== 1) return;
       client.ws.send(message);
       client.isPending = true;
     }
