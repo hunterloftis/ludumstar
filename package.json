@@ -20,7 +20,11 @@
     "watchify": "^2.1.1"
   },
   "dependencies": {
+    "browserify": "^6.3.3",
     "express": "^4.10.4",
-    "browserify": "^6.3.3"
+    "performance-now": "^0.2.0",
+    "present": "0.0.6",
+    "raf": "^2.0.4",
+    "ws": "^0.6.2"
   }
 }
