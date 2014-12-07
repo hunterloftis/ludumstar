@@ -28,7 +28,7 @@ var networkRenderer = {
     client.isPending = false;
     client.lastAnswered = present();
     var payload = JSON.parse(data);
-    if (payload.type === 'playerState') {
+    if (payload.type === 'playerState' && payload.state) {
       game.entities.set(client.id, payload.state);
     }
   },
