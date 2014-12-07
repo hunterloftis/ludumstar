@@ -49,7 +49,7 @@
 
       var canvas = document.getElementById('viewport');
       var renderer = new Star.Renderer(canvas);
-      var keyboard = new Star.Keyboard(document);
+      var keyboard = new Star.Keyboard();
       var game = new Star.Game(renderer, keyboard);
 
       game.start();
