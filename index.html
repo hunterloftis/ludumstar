@@ -55,12 +55,16 @@
 
       game.start();
 
+      network.on('id', function(id) {
+        game.setId(id);
+      });
+
       network.on('state', function(state) {
         game.replaceState(state);
       });
 
-      game.on('render', function(seconds, state) {
-        network.sendState(state);
+      game.on('render', function(seconds, state, playerState) {
+        network.sendPlayer(playerState);
       });
 
     </script>

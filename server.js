@@ -12,6 +12,7 @@ var networkRenderer = {
   clients: [],
   createClient: function(ws) {
     var client = {
+      id: undefined,
       ws: ws,
       isPending: false,
       lastAnswered: present()
@@ -27,9 +28,12 @@ var networkRenderer = {
     client.isPending = false;
     client.lastAnswered = present();
     var payload = JSON.parse(data);
-    if (payload.type === 'state') {
-
+    if (payload.type === 'playerState') {
+      game.entities.set(client.id, payload.state);
     }
+  },
+  attachClientId: function(client, id) {
+    client.id = id;
   },
   render: function(seconds, state) {
     var now = present();
@@ -86,15 +90,24 @@ function sendIndex(req, res, next) {
 }
 
 function onSocketConnection(ws) {
-  var client = networkRenderer.createClient(ws);
   console.log('client connected');
 
+  var client = networkRenderer.createClient(ws);
+  var id = game.createPlayer();
+  networkRenderer.attachClientId(client, id);
+  var payload = {
+    type: 'id',
+    id: id
+  };
+  var message = JSON.stringify(payload);
+  ws.send(message);
+
   ws.on('message', function(data, flags) {
-    console.log('onmessage');
     networkRenderer.updateClient(client, data);
   });
 
   ws.on('close', function() {
+    game.destroyEntity(client.id);
     networkRenderer.destroyClient(client);
     console.log('client disconnected');
   });
