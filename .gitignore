@@ -2,3 +2,4 @@
 assets/texture-packer.tps
 /node_modules
 npm-debug.log
+/build
