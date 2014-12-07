@@ -16,9 +16,10 @@
     "gl-matrix-mat3": "^2.2.1-npm",
     "gl-matrix-vec2": "^2.2.1-npm",
     "lodash": "^2.4.1",
+    "minpubsub": "0.0.1",
     "node-static": "^0.7.6",
     "noisejs": "^2.1.0",
-    "pubsub": "^1.0.2",
+    "preach": "^0.2.2",
     "watchify": "^2.1.1"
   }
 }
