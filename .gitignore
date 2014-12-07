@@ -1,0 +1,4 @@
+.DS_Store
+assets/texture-packer.tps
+/node_modules
+npm-debug.log
