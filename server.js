@@ -99,7 +99,12 @@ game.start();
 server.listen(PORT);
 console.log('Listening on', PORT);
 
-
+// Create ammo every 10s
+setInterval(function() {
+  var powerups = game.entities.getAll('powerup');
+  if (powerups > 4) return;
+  game.createPowerup('ammo');
+}, 10000);
 
 function sendIndex(req, res, next) {
   res.sendFile(path.join(__dirname, 'index.html'));
