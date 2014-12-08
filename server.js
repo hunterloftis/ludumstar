@@ -94,6 +94,12 @@ app
 
 wss.on('connection', onSocketConnection);
 game.on('render', networkRenderer.render.bind(networkRenderer));
+game.on('points', function(team) {
+  console.log('Kill! ' + team.team + ' team up to ' + team.points + ' points!');
+});
+game.on('gameover', function(stats) {
+  console.log('Game over! Red: ' + stats.red + ', Blue: ' + stats.blue);
+});
 
 game.start();
 server.listen(PORT);
